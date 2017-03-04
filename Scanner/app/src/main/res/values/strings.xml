@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Scanner</string>
+    <string name="title_activity_view">View</string>
+    <string name="action_scan_barcodes">Scan barcodes</string>
+
+    <string name="view">View</string>
+    <string name="open">Open link</string>
+    <string name="hint">Hold text to copy</string>
+    <string name="snackbar_open_button">Open</string>
+    <string name="copy_link_menu_item">Copy link</string>
+
+    <string name="file_write_error">Error while saving</string>
+
+    <string name="file_delete_success">Removed</string>
+    <string name="file_delete_error">Error while removing</string>
+
+    <string name="file_update_success">Updated</string>
+    <string name="file_update_error">Error while updating</string>
+
+    <string name="generic_error">An error occurred</string>
+
+    <string name="file_duplicate_item">Already scanned</string>
+
+    <string name="edittext_max_lines">10</string>
+</resources>
