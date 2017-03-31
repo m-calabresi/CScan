@@ -1,7 +1,13 @@
 # Updates changelog
 
-1. Updated to Android 7.1.1 Nougat, API 25, SDK build tools 25.0.2.
-2. Fixed Contextual ActionBar color in ResultActivity.
-3. Changed Selected Text Handle style.
-4. Added in-app Chrome Custom Tabs support.
-5. Minor performance improvements.
+1. Fresh rebuild of entire project.
+2. Updated to Android 7.1.1 (Nougat)
+3. TextSelectionHandlers now have ColorPrimary color
+4. Added RecyclerView bottom padding in MainActivity (removed FAB animation)
+5. Changed Scan button image.
+6. Changed View button with appropriate icon.
+7. Added Undo feature to RecyclerView items when removed
+8. Added SettingsActivity with basic settings.
+9. Added no-item-view displayed when no items available
+10. Removed Snackbar swipe to dismiss behavior. 
+11. Minor performance improvements.

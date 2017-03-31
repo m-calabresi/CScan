@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="@string/pref_key_scan_category"
+        android:title="@string/pref_title_scan_category">
+        <CheckBoxPreference
+            android:id="@+id/pref_scan_barcode"
+            android:icon="@drawable/ic_barcode"
+            android:key="@string/pref_key_scan_barcode"
+            android:summary="@string/pref_summary_scan_barcodes"
+            android:title="@string/pref_title_scan_barcodes"
+            android:widgetLayout="@layout/swich_compat_layout" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_key_links_category"
+        android:title="@string/pref_title_links_category">
+        <CheckBoxPreference
+            android:id="@+id/pref_open_links"
+            android:icon="@drawable/ic_link"
+            android:key="@string/pref_key_open_links"
+            android:summary="@string/pref_summary_open_links"
+            android:title="@string/pref_title_open_links"
+            android:widgetLayout="@layout/swich_compat_layout" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
