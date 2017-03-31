@@ -11,3 +11,4 @@ Last update: FRI, 03-31-2017.
 1. The ZBar Android SDK: http://sourceforge.net/projects/zbar/files/AndroidSDK/
 2. ZBar Implementation Sample: https://github.com/DushyanthMaguluru/ZBarScanner.
 3. Chrome Custom Tabs implementation: https://developer.chrome.com/multidevice/android/customtabs
+4. The recycler-view-swipe-to-delete Sample: https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete
