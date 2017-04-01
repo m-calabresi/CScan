@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ZBAR_SCANNER_REQUEST = 0;
     private static final int ZBAR_OR_SCANNER_REQUEST = 1; //QR-Code only variable
 
-    private static final int PENDING_REMOVAL_TIMEOUT = 3000;
+    private static final int PENDING_REMOVAL_TIMEOUT = 3500;
 
     public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
     public static final String INTENT_EXTRA_TITLE = "scan_result";
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     protected CustomTabsSession mCustomTabsSession;
     private CustomTabsIntent customTabsIntent;
 
-    private SharedPreferences sharedPreferences;
+    public SharedPreferences sharedPreferences;
 
     private Runnable pendingRemovalRunnable;
     private Handler pendingRemovalHandler;
@@ -101,15 +101,16 @@ public class MainActivity extends AppCompatActivity {
         pendingRemovalHandler = new Handler();
         pendingInfos = new ArrayList<>();
 
-        parser = new XMLParser(getApplicationContext());
-        infos = parser.read();
-
         //setup empty view
         SpannableString string = new SpannableString(getString(R.string.text_empty_view));
         ImageSpan scanImageSpan = new ImageSpan(this, R.drawable.ic_scan_grey);
         string.setSpan(scanImageSpan, 57, 59, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         emptyView.setText(string);
+
+        setUpRecyclerView();
+        //chrome custom tabs
+        setUpInAppWebBrowser();
     }
 
     @Override
@@ -167,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        setUpInAppWebBrowser();
         setUpRecyclerView();
         setUpEmptyView();
     }
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         setUpEmptyView();
 
         actionUndoMessage(getString(R.string.file_delete_success),
-                PENDING_REMOVAL_TIMEOUT, //remove-thread and snackbar have same lifetime
+                BaseTransientBottomBar.LENGTH_LONG, //remove-thread and snackbar have same lifetime
                 getString(R.string.action_undo),
                 position);
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    private void openViewActivity(Info info) {
+    public void openViewActivity(Info info) {
         if (!info.isNull()) {
             Intent openViewActivity = new Intent(MainActivity.this, EditActivity.class);
             openViewActivity.putExtra(INTENT_EXTRA_TITLE, info);
@@ -272,6 +272,15 @@ public class MainActivity extends AppCompatActivity {
         } else
             simpleMessage(getString(R.string.generic_error),
                     BaseTransientBottomBar.LENGTH_LONG);
+    }
+
+    public void openLink(String link) {
+        Uri url;
+        //check for syntax URI error
+        link = URIChecker.toLink(link);
+        //open link
+        url = Uri.parse(link);
+        customTabsIntent.launchUrl(this, url);
     }
 
     private void setNotDismissible(final Snackbar snackbar) {
@@ -285,15 +294,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    public void openLink(String link) {
-        Uri url;
-        //check for syntax URI error
-        link = URIChecker.toLink(link);
-        //open link
-        url = Uri.parse(link);
-        customTabsIntent.launchUrl(this, url);
     }
 
     private void setUpInAppWebBrowser() {
@@ -330,11 +330,13 @@ public class MainActivity extends AppCompatActivity {
         };
 
         CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection);
-
         customTabsIntent = builder.build();
     }
 
     private void setUpRecyclerView() {
+        parser = new XMLParser(getApplicationContext());
+        infos = parser.read();
+
         mRecyclerViewAdapter = new RecyclerViewAdapter(infos);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
