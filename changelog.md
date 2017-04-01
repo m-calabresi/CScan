@@ -1,11 +1,11 @@
 # Updates changelog
 
-SAT, 01-04-2017
+SAT, 04-01-2017
 1. Fixed RecyclerView scrolling issue.
 2. Addedd Landscape Activity support.
 3. Minor graphical improvements.
 
-FRI, 31-03-2017
+FRI, 03-31-2017
 1. Fresh rebuild of entire project.
 2. Updated to Android 7.1.1 (Nougat)
 3. TextSelectionHandlers now have ColorPrimary color
