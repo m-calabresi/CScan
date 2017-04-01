@@ -4,7 +4,7 @@ SAT, 04-01-2017
 1. Fixed RecyclerView scrolling issue.
 2. Addedd Landscape Activity support.
 3. Minor graphical improvements.
-
+___
 FRI, 03-31-2017
 1. Fresh rebuild of entire project.
 2. Updated to Android 7.1.1 (Nougat)
