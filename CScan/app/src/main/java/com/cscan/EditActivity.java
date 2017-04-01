@@ -9,9 +9,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.KeyListener;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
@@ -20,7 +22,7 @@ import com.cscan.classes.Info;
 import com.cscan.classes.XMLParser;
 import com.cscan.classes.layout.CustomEditText;
 
-public class ViewActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity {
 
     private FloatingActionButton done_fab;
     private FloatingActionButton undo_fab;
@@ -37,15 +39,18 @@ public class ViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view);
+        setContentView(R.layout.activity_edit);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (isEditing)
+                    undo();
+                else
+                    finish();
                 dismiss();
-                finish();
             }
         });
 
@@ -79,21 +84,7 @@ public class ViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isEditing) {
-                    String message;
-                    Info newInfo;
-
-                    newInfo = new Info(editText.getText().toString());
-
-                    if (!info.equals(newInfo)) {
-                        if (parser.update(info, newInfo)) {
-                            //update Info
-                            info = newInfo;
-
-                            message = getString(R.string.file_update_success);
-                        } else
-                            message = getString(R.string.file_update_error);
-                        simpleMessage(message, BaseTransientBottomBar.LENGTH_SHORT);
-                    }
+                    update();
                     dismiss();
                 } else
                     edit();
@@ -103,8 +94,7 @@ public class ViewActivity extends AppCompatActivity {
         undo_fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //undo all changes by refill strView with it's original content
-                editText.setText(info.getText());
+                undo();
                 dismiss();
             }
         });
@@ -112,36 +102,71 @@ public class ViewActivity extends AppCompatActivity {
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isEditing)
+                if (!isEditing) {
                     edit();
-                else
                     editText.setBackgroundResource(R.drawable.edit_text_bg_is_edited);
+                }
             }
         });
 
         editText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!isEditing)
+                if (!isEditing) {
                     ClipboardManager.copyToClipboard(editText.getText().toString(), v.getContext());
-                else
-                    editText.setBackgroundResource(R.drawable.edit_text_bg_is_edited);
-
-                //return false = after long click a normal click is performed
-                return true;
+                    editText.setPressed(false);
+                }
+                return true; //return false = after long click a normal click is performed
             }
         });
 
+        //back button of device
         editText.setBackPressedListener(new CustomEditText.BackPressedListener() {
             @Override
             public void onImeBack(CustomEditText editText) {
                 if (isEditing) {
-                    //undo all changes by refill strView with it's original content
-                    editText.setText(info.getText());
+                    undo();
                     dismiss();
                 }
             }
         });
+
+        //done button of landscape keyboard
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    update();
+                    dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    //undo all changes by refill strView with its original content
+    private void undo() {
+        editText.setText(info.getText());
+    }
+
+    //update content (in both RecyclerView and xml file)
+    private void update() {
+        String message;
+        Info newInfo;
+
+        newInfo = new Info(editText.getText().toString());
+
+        if (!info.equals(newInfo)) {
+            if (parser.update(info, newInfo)) {
+                //update Info
+                info = newInfo;
+
+                message = getString(R.string.file_update_success);
+            } else
+                message = getString(R.string.file_update_error);
+            simpleMessage(message, BaseTransientBottomBar.LENGTH_SHORT);
+        }
     }
 
     private void edit() {
@@ -154,7 +179,7 @@ public class ViewActivity extends AppCompatActivity {
         editText.requestFocus();
         // Show soft keyboard for the user to enter the value.
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+        imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
         done_fab.setImageResource(R.drawable.ic_done);
         undo_fab.setVisibility(View.VISIBLE);
         editText.setCursorVisible(true);

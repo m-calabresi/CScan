@@ -122,21 +122,21 @@ public class XMLParser {
     }
 
     public boolean write(Info info) {
-            Element root;
-            switch (checkFolderAndFile()) {
-                case FILE_EMPTY:
-                case FILE_HEADER:
-                    root = this.document.createElement(XML_TAG_INFOS);
-                    this.document.appendChild(root);
-                    break;
-                case FILE_FILLED:
-                    root = this.document.getDocumentElement();
-                    break;
-                case ACCESS_DENIED:
-                default:
-                    return false;
-            }
-            return add(info, root);
+        Element root;
+        switch (checkFolderAndFile()) {
+            case FILE_EMPTY:
+            case FILE_HEADER:
+                root = this.document.createElement(XML_TAG_INFOS);
+                this.document.appendChild(root);
+                break;
+            case FILE_FILLED:
+                root = this.document.getDocumentElement();
+                break;
+            case ACCESS_DENIED:
+            default:
+                return false;
+        }
+        return add(info, root);
     }
 
     private boolean add(Info i, Element root) {

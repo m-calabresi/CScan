@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cscan.MainActivity;
-import com.cscan.ViewActivity;
+import com.cscan.EditActivity;
 import com.cscan.classes.Info;
 
 import java.util.List;
@@ -54,7 +54,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
 
     private void actionView(Info item, Context context) {
         Intent openViewActivity = new Intent(context,
-                ViewActivity.class);
+                EditActivity.class);
         openViewActivity.putExtra(MainActivity.INTENT_EXTRA_TITLE, item);
         context.startActivity(openViewActivity);
     }

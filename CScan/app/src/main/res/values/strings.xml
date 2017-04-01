@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">CScan</string>
-    <string name="title_activity_view">View</string>
+    <string name="title_activity_edit">Edit</string>
     <string name="title_activity_main"><b>C</b>Scan</string>
     <string name="title_activity_settings">Settings</string>
 

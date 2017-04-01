@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ZBAR_SCANNER_REQUEST = 0;
     private static final int ZBAR_OR_SCANNER_REQUEST = 1; //QR-Code only variable
 
-    private static final int PENDING_REMOVAL_TIMEOUT = 3500;
+    private static final int PENDING_REMOVAL_TIMEOUT = 3000;
 
     public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
     public static final String INTENT_EXTRA_TITLE = "scan_result";
@@ -168,8 +168,8 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         setUpInAppWebBrowser();
-        setUpEmptyView();
         setUpRecyclerView();
+        setUpEmptyView();
     }
 
     protected void scan() {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void simpleMessage(String message, int time) {
         final Snackbar snackbar = Snackbar.make(findViewById(R.id.main_activity), message, time);
-        setNotDismisible(snackbar);
+        setNotDismissible(snackbar);
         snackbar.show();
     }
 
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                 openViewActivity(infos.get(position));
             }
         });
-        setNotDismisible(snackbar);
+        setNotDismissible(snackbar);
         snackbar.show();
     }
 
@@ -260,13 +260,13 @@ public class MainActivity extends AppCompatActivity {
                 undo(position);
             }
         });
-        setNotDismisible(snackbar);
+        setNotDismissible(snackbar);
         snackbar.show();
     }
 
     private void openViewActivity(Info info) {
         if (!info.isNull()) {
-            Intent openViewActivity = new Intent(MainActivity.this, ViewActivity.class);
+            Intent openViewActivity = new Intent(MainActivity.this, EditActivity.class);
             openViewActivity.putExtra(INTENT_EXTRA_TITLE, info);
             startActivity(openViewActivity);
         } else
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     BaseTransientBottomBar.LENGTH_LONG);
     }
 
-    private void setNotDismisible(final Snackbar snackbar){
+    private void setNotDismissible(final Snackbar snackbar) {
         //makes snackbar not dismissible in CoordinatorLayout
         snackbar.getView().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -345,10 +345,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpEmptyView() {
-        if (infos.size() > 0)
+        if (infos.size() > 0) {
             emptyView.setVisibility(View.GONE);
-        else
+            if (mRecyclerView != null) //this method may be called before setUpRecyclerView
+                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_ALWAYS); //enable scroll effect
+        } else {
             emptyView.setVisibility(View.VISIBLE);
+            if (mRecyclerView != null) //this method may be called before setUpRecyclerView
+                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER); //disable scroll effect
+        }
     }
 
     private void setUpItemTouchHelper() {

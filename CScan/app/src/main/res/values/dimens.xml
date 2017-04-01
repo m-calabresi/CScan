@@ -20,4 +20,6 @@
 
     <!--margin (16dp) + fab size (56dp) + margin (16dp) -->
     <dimen name="recycler_view_bottom_padding">88dp</dimen>
+
+    <dimen name="cardview_margin">2sp</dimen>
 </resources>
