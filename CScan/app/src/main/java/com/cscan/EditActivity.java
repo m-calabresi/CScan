@@ -50,11 +50,19 @@ public class EditActivity extends AppCompatActivity {
                     undo();
                 else
                     finish();
-                dismiss();
             }
         });
 
         init();
+    }
+
+    //when user press home / recent-apps button
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (isEditing)
+            if (!hasFocus)
+                undo();
     }
 
     private void init() {
@@ -85,7 +93,6 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (isEditing) {
                     update();
-                    dismiss();
                 } else
                     edit();
             }
@@ -95,7 +102,6 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 undo();
-                dismiss();
             }
         });
 
@@ -124,10 +130,8 @@ public class EditActivity extends AppCompatActivity {
         editText.setBackPressedListener(new CustomEditText.BackPressedListener() {
             @Override
             public void onImeBack(CustomEditText editText) {
-                if (isEditing) {
+                if (isEditing)
                     undo();
-                    dismiss();
-                }
             }
         });
 
@@ -137,7 +141,6 @@ public class EditActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     update();
-                    dismiss();
                     return true;
                 }
                 return false;
@@ -148,6 +151,7 @@ public class EditActivity extends AppCompatActivity {
     //undo all changes by refill strView with its original content
     private void undo() {
         editText.setText(info.getText());
+        dismiss();
     }
 
     //update content (in both RecyclerView and xml file)
@@ -167,25 +171,25 @@ public class EditActivity extends AppCompatActivity {
                 message = getString(R.string.file_update_error);
             simpleMessage(message, BaseTransientBottomBar.LENGTH_SHORT);
         }
+        dismiss();
     }
 
+    //edit Textview text
     private void edit() {
         isEditing = true;
         //Place cursor to the end of text
         editText.setSelection(editText.getText().length());
         // Restore key listener - this will make the field editable again.
         editText.setKeyListener(defaultKeyListener);
-        // Focus the field.
-        editText.requestFocus();
-        // Show soft keyboard for the user to enter the value.
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
         done_fab.setImageResource(R.drawable.ic_done);
         undo_fab.setVisibility(View.VISIBLE);
         editText.setCursorVisible(true);
         hintTextView.setVisibility(View.INVISIBLE);
+
+        showKeyboard();
     }
 
+    //end the edit session
     private void dismiss() {
         isEditing = false;
         done_fab.setImageResource(R.drawable.ic_edit_white);
@@ -193,16 +197,24 @@ public class EditActivity extends AppCompatActivity {
         editText.setCursorVisible(false);
         editText.setBackgroundResource(R.drawable.edit_text_bg);
         hintTextView.setVisibility(View.VISIBLE);
+        // Make EditText non-editable again.
+        editText.setKeyListener(null);
 
         hideKeyboard();
     }
 
     private void hideKeyboard() {
-        // Hide soft keyboard.
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-        // Make EditText non-editable again.
-        editText.setKeyListener(null);
+        if (editText != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+        }
+    }
+
+    private void showKeyboard() {
+        if (editText.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
+        }
     }
 
     private void simpleMessage(String message, int time) {

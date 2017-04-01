@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
+    private CustomTabsServiceConnection mCustomTabsServiceConnection;
     private CustomTabsClient mCustomTabsClient;
     protected CustomTabsSession mCustomTabsSession;
     private CustomTabsIntent customTabsIntent;
@@ -108,9 +109,22 @@ public class MainActivity extends AppCompatActivity {
 
         emptyView.setText(string);
 
-        setUpRecyclerView();
+        bindRecyclerView();
         //chrome custom tabs
-        setUpInAppWebBrowser();
+        bindCustomTabsService();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        bindRecyclerView();
+        bindEmptyView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindCustomTabsService();
+        super.onDestroy();
     }
 
     @Override
@@ -153,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //save scanned element
                 if (!parser.write(info))
-                    simpleMessage(getString(R.string.file_write_error),
+                    textMessage(getString(R.string.file_write_error),
                             BaseTransientBottomBar.LENGTH_LONG);
 
                 infos.add(info);
@@ -165,11 +179,96 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        setUpRecyclerView();
-        setUpEmptyView();
+    private void bindCustomTabsService() {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        Intent intent = new Intent(this, CustomTabsBroadcastReceiver.class); //copy link action
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
+        builder.setShowTitle(true);
+        //back arrow icon
+        builder.setCloseButtonIcon(BitmapFactory.decodeResource(
+                getResources(), R.drawable.ic_arrow_back));
+        builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
+
+        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
+            @Override
+            public void onCustomTabsServiceConnected(ComponentName componentName,
+                                                     CustomTabsClient customTabsClient) {
+                mCustomTabsClient = customTabsClient;
+                mCustomTabsClient.warmup(0);
+                mCustomTabsSession = mCustomTabsClient.newSession(null);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mCustomTabsClient = null;
+            }
+        };
+
+        if (!CustomTabsClient.bindCustomTabsService(
+                this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection))
+            mCustomTabsServiceConnection = null;
+        customTabsIntent = builder.build();
+    }
+
+    private void unbindCustomTabsService() {
+        if (mCustomTabsServiceConnection == null) return;
+        unbindService(mCustomTabsServiceConnection);
+        mCustomTabsClient = null;
+        mCustomTabsSession = null;
+    }
+
+    private void bindRecyclerView() {
+        parser = new XMLParser(getApplicationContext());
+        infos = parser.read();
+
+        mRecyclerViewAdapter = new RecyclerViewAdapter(infos);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
+        mRecyclerView.setHasFixedSize(true);
+
+        bindItemTouchHelper();
+    }
+
+    private void bindEmptyView() {
+        if (infos.size() > 0) {
+            emptyView.setVisibility(View.GONE);
+            if (mRecyclerView != null) //this method may be called before bindRecyclerView
+                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_ALWAYS); //enable scroll effect
+        } else {
+            emptyView.setVisibility(View.VISIBLE);
+            if (mRecyclerView != null) //this method may be called before bindRecyclerView
+                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER); //disable scroll effect
+        }
+    }
+
+    private void bindItemTouchHelper() {
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback
+                = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            // not important, we don't want drag & drop
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                remove(swipedPosition);
+            }
+        };
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     protected void scan() {
@@ -189,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         infos.remove(position);
         mRecyclerViewAdapter.notifyItemRemoved(position);
         //update UI (if necessary)
-        setUpEmptyView();
+        bindEmptyView();
 
         actionUndoMessage(getString(R.string.file_delete_success),
                 BaseTransientBottomBar.LENGTH_LONG, //remove-thread and snackbar have same lifetime
@@ -206,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                     pendingInfos.remove(0);
                 }
                 if (!parser.delete(info)) {
-                    simpleMessage(getString(R.string.file_delete_error),
+                    textMessage(getString(R.string.file_delete_error),
                             BaseTransientBottomBar.LENGTH_SHORT);
                 }
             }
@@ -228,12 +327,12 @@ public class MainActivity extends AppCompatActivity {
                 infos.add(position, info);
                 mRecyclerViewAdapter.notifyItemInserted(position);
                 //update UI (if necessary)
-                setUpEmptyView();
+                bindEmptyView();
             }
         }
     }
 
-    public void simpleMessage(String message, int time) {
+    public void textMessage(String message, int time) {
         final Snackbar snackbar = Snackbar.make(findViewById(R.id.main_activity), message, time);
         setNotDismissible(snackbar);
         snackbar.show();
@@ -270,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
             openViewActivity.putExtra(INTENT_EXTRA_TITLE, info);
             startActivity(openViewActivity);
         } else
-            simpleMessage(getString(R.string.generic_error),
+            textMessage(getString(R.string.generic_error),
                     BaseTransientBottomBar.LENGTH_LONG);
     }
 
@@ -294,93 +393,5 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    private void setUpInAppWebBrowser() {
-        CustomTabsServiceConnection mCustomTabsServiceConnection;
-        CustomTabsIntent.Builder builder;
-        PendingIntent pendingIntent;
-        Intent intent;
-
-        builder = new CustomTabsIntent.Builder();
-
-        builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
-        builder.setShowTitle(true);
-        //back arrow icon
-        builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-                getResources(), R.drawable.ic_arrow_back));
-        //copy link action
-        intent = new Intent(this, CustomTabsBroadcastReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
-
-        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName componentName,
-                                                     CustomTabsClient customTabsClient) {
-                mCustomTabsClient = customTabsClient;
-                mCustomTabsClient.warmup(0L);
-                mCustomTabsSession = mCustomTabsClient.newSession(null);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mCustomTabsClient = null;
-            }
-        };
-
-        CustomTabsClient.bindCustomTabsService(this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection);
-        customTabsIntent = builder.build();
-    }
-
-    private void setUpRecyclerView() {
-        parser = new XMLParser(getApplicationContext());
-        infos = parser.read();
-
-        mRecyclerViewAdapter = new RecyclerViewAdapter(infos);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        mRecyclerView.setHasFixedSize(true);
-
-        setUpItemTouchHelper();
-    }
-
-    private void setUpEmptyView() {
-        if (infos.size() > 0) {
-            emptyView.setVisibility(View.GONE);
-            if (mRecyclerView != null) //this method may be called before setUpRecyclerView
-                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_ALWAYS); //enable scroll effect
-        } else {
-            emptyView.setVisibility(View.VISIBLE);
-            if (mRecyclerView != null) //this method may be called before setUpRecyclerView
-                mRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER); //disable scroll effect
-        }
-    }
-
-    private void setUpItemTouchHelper() {
-
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback
-                = new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            // not important, we don't want drag & drop
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                return super.getSwipeDirs(recyclerView, viewHolder);
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int swipedPosition = viewHolder.getAdapterPosition();
-                remove(swipedPosition);
-            }
-        };
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 }
