@@ -1,6 +1,7 @@
 package com.cscan;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
@@ -53,6 +54,19 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        SharedPreferences sharedPreferences = getSharedPreferences(
+                getString(R.string.cscan_shared_preference_name), MODE_PRIVATE);
+        //check for errors in the previous activity
+        if (sharedPreferences.contains(getString(R.string.pref_key_next_error))) {
+            String errorMsg = sharedPreferences.getString(
+                    getString(R.string.pref_key_next_error), null);
+            if (errorMsg != null && !errorMsg.equals(getString(R.string.pref_no_next_error))) {
+                simpleMessage(errorMsg, BaseTransientBottomBar.LENGTH_LONG);
+                sharedPreferences.edit().putString(getString(R.string.pref_key_next_error),
+                        getString(R.string.pref_no_next_error)).apply();
+            }
+        }
+
         init();
     }
 
@@ -66,7 +80,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void init() {
-        info = getIntent().getExtras().getParcelable(MainActivity.INTENT_EXTRA_TITLE);
+        info = getIntent().getExtras().getParcelable(ScanActivity.INTENT_EXTRA_TITLE);
 
         isEditing = false;
         parser = new XMLParser(getApplicationContext());

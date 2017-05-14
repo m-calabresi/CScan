@@ -1,13 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.cscan">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
 
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -28,19 +32,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.dm.zbar.android.scanner.ZBarScannerActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape" />
-        <activity
             android:name=".EditActivity"
             android:configChanges="keyboard|orientation|screenSize"
             android:label="@string/title_activity_edit"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ScanActivity"
+            android:label="@string/app_name"
+            android:fitsSystemWindows="true"
+            android:configChanges="orientation|screenSize"/>
 
         <receiver
             android:name=".classes.CustomTabsBroadcastReceiver"

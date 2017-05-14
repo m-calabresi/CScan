@@ -1,22 +1,12 @@
 package com.cscan;
 
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,18 +22,14 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import com.cscan.classes.CustomTabsBroadcastReceiver;
 import com.cscan.classes.Info;
-import com.cscan.classes.URIChecker;
 import com.cscan.classes.XMLParser;
 import com.cscan.classes.layout.RecyclerViewAdapter;
-import com.dm.zbar.android.scanner.ZBarConstants;
-import com.dm.zbar.android.scanner.ZBarScannerActivity;
-
-import net.sourceforge.zbar.Symbol;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.cscan.ScanActivity.INTENT_EXTRA_TITLE;
 
 public class MainActivity extends AppCompatActivity {
     static {
@@ -51,13 +37,7 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private static final int ZBAR_SCANNER_REQUEST = 0;
-    private static final int ZBAR_OR_SCANNER_REQUEST = 1; //QR-Code only variable
-
     private static final int PENDING_REMOVAL_TIMEOUT = 3500;
-
-    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
-    public static final String INTENT_EXTRA_TITLE = "scan_result";
 
     private List<Info> infos;
     private List<Info> pendingInfos;
@@ -66,13 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView emptyView;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mRecyclerViewAdapter;
-
-    private CustomTabsServiceConnection mCustomTabsServiceConnection;
-    private CustomTabsClient mCustomTabsClient;
-    protected CustomTabsSession mCustomTabsSession;
-    private CustomTabsIntent customTabsIntent;
-
-    public SharedPreferences sharedPreferences;
 
     private Runnable pendingRemovalRunnable;
     private Handler pendingRemovalHandler;
@@ -93,12 +66,10 @@ public class MainActivity extends AppCompatActivity {
         scan_fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scan();
+                startActivity(new Intent(MainActivity.this, ScanActivity.class));
             }
         });
 
-        sharedPreferences = getSharedPreferences(getString(R.string.CSCAN_SHARED_PREFERENCES_NAME),
-                MODE_PRIVATE);
         pendingRemovalHandler = new Handler();
         pendingInfos = new ArrayList<>();
 
@@ -110,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
         emptyView.setText(string);
 
         bindRecyclerView();
-        //chrome custom tabs
-        bindCustomTabsService();
     }
 
     @Override
@@ -119,12 +88,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         bindRecyclerView();
         bindEmptyView();
-    }
-
-    @Override
-    protected void onDestroy() {
-        unbindCustomTabsService();
-        super.onDestroy();
     }
 
     @Override
@@ -140,84 +103,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings)
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final int foundPos;
-        final Info info;
-        boolean openlink;
-        String scanResult;
-
-        if ((requestCode == ZBAR_SCANNER_REQUEST || requestCode == ZBAR_OR_SCANNER_REQUEST)
-                && resultCode == RESULT_OK) {
-
-            openlink = sharedPreferences.getBoolean(getString(R.string.pref_key_open_links), false);
-            scanResult = data.getStringExtra(ZBarConstants.SCAN_RESULT);
-
-            info = new Info(scanResult);
-
-            //check for duplicate item
-            if ((foundPos = (parser.find(info))) == -1) {
-                //check for URI
-                if (URIChecker.isURI(scanResult) && openlink)
-                    openLink(scanResult);
-                else //not a URI
-                    openViewActivity(info);
-
-                //save scanned element
-                if (!parser.write(info))
-                    textMessage(getString(R.string.file_write_error),
-                            BaseTransientBottomBar.LENGTH_LONG);
-
-                infos.add(info);
-            } else
-                actionOpenMessage(getString(R.string.file_duplicate_error),
-                        BaseTransientBottomBar.LENGTH_LONG,
-                        getString(R.string.action_view),
-                        foundPos);
-        }
-    }
-
-    private void bindCustomTabsService() {
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        Intent intent = new Intent(this, CustomTabsBroadcastReceiver.class); //copy link action
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
-        builder.setShowTitle(true);
-        //back arrow icon
-        builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-                getResources(), R.drawable.ic_arrow_back));
-        builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
-
-        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName componentName,
-                                                     CustomTabsClient customTabsClient) {
-                mCustomTabsClient = customTabsClient;
-                mCustomTabsClient.warmup(0);
-                mCustomTabsSession = mCustomTabsClient.newSession(null);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mCustomTabsClient = null;
-            }
-        };
-
-        if (!CustomTabsClient.bindCustomTabsService(
-                this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection))
-            mCustomTabsServiceConnection = null;
-        customTabsIntent = builder.build();
-    }
-
-    private void unbindCustomTabsService() {
-        if (mCustomTabsServiceConnection == null) return;
-        unbindService(mCustomTabsServiceConnection);
-        mCustomTabsClient = null;
-        mCustomTabsSession = null;
     }
 
     private void bindRecyclerView() {
@@ -269,16 +154,6 @@ public class MainActivity extends AppCompatActivity {
         };
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-    }
-
-    protected void scan() {
-        Intent i = new Intent(MainActivity.this, ZBarScannerActivity.class);
-        boolean scanBarcodes
-                = sharedPreferences.getBoolean(getString(R.string.pref_key_scan_barcode), false);
-
-        if (!scanBarcodes)
-            i.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.QRCODE});
-        startActivityForResult(i, ZBAR_SCANNER_REQUEST);
     }
 
     protected void remove(int position) {
@@ -338,19 +213,6 @@ public class MainActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    public void actionOpenMessage(String message, int time, String action, final int position) {
-        final Snackbar snackbar = Snackbar.make(findViewById(R.id.main_activity), message, time);
-        snackbar.setAction(action, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //open already saved element
-                openViewActivity(infos.get(position));
-            }
-        });
-        setNotDismissible(snackbar);
-        snackbar.show();
-    }
-
     public void actionUndoMessage(String message, int time, String action, final int position) {
         final Snackbar snackbar = Snackbar.make(findViewById(R.id.main_activity), message, time);
         snackbar.setAction(action, new View.OnClickListener() {
@@ -371,15 +233,6 @@ public class MainActivity extends AppCompatActivity {
         } else
             textMessage(getString(R.string.generic_error),
                     BaseTransientBottomBar.LENGTH_LONG);
-    }
-
-    public void openLink(String link) {
-        Uri url;
-        //check for syntax URI error
-        link = URIChecker.toLink(link);
-        //open link
-        url = Uri.parse(link);
-        customTabsIntent.launchUrl(this, url);
     }
 
     private void setNotDismissible(final Snackbar snackbar) {

@@ -56,7 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.pref_main);
 
             sharedPreferences = getActivity().getSharedPreferences(
-                    getString(R.string.CSCAN_SHARED_PREFERENCES_NAME), MODE_PRIVATE);
+                    getString(R.string.cscan_shared_preference_name), MODE_PRIVATE);
 
             scanBarcodes = sharedPreferences.getBoolean(getString(R.string.pref_key_scan_barcode), false);
             openLinks = sharedPreferences.getBoolean(getString(R.string.pref_key_open_links), false);

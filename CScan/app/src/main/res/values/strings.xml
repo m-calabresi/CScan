@@ -14,11 +14,13 @@
     <string name="pref_key_scan_category">category_scan</string>
     <string name="pref_key_scan_barcode">scan_barcode</string>
     <string name="pref_key_open_links">open_links</string>
+    <string name="pref_key_next_error">next_activity_error</string>
 
     <string name="pref_title_links_category">Links</string>
     <string name="pref_title_scan_category">Scan</string>
     <string name="pref_title_scan_barcodes">Scan barcodes</string>
     <string name="pref_title_open_links">Open links</string>
+    <string name="pref_no_next_error">no_next_error</string>
 
     <string name="pref_summary_scan_barcodes">Allow barcode scanning</string>
     <string name="pref_summary_open_links">Directly open links into the default in-app web browser</string>
@@ -35,9 +37,12 @@
     <string name="file_update_error">Error while updating</string>
     <string name="file_duplicate_error">Already scanned</string>
 
+    <string name="flash_open_error">Unable to access flash light</string>
+    <string name="camera_open_error">Unable to access camera</string>
+
     <string name="generic_error">An error occurred</string>
 
     <string name="edittext_max_lines">10</string>
 
-    <string name="CSCAN_SHARED_PREFERENCES_NAME">SHARED_PREFERENCES</string>
+    <string name="cscan_shared_preference_name">CSCAN_SHARED_PREFERENCES</string>
 </resources>
