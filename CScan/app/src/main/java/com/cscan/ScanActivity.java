@@ -79,7 +79,6 @@ public class ScanActivity extends AppCompatActivity {
         System.loadLibrary("iconv");
     }
 
-    // TODO: 14/05/2017 aggiungere opzione scan qr only, aggiungere messaggi errore in customTabsIntent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -235,6 +234,12 @@ public class ScanActivity extends AppCompatActivity {
         scanner.setConfig(0, Config.X_DENSITY, 3);
         scanner.setConfig(0, Config.Y_DENSITY, 3);
 
+        //qr-code only
+        if(!scanBarcodes){
+            scanner.setConfig(0, Config.ENABLE, 0); //Disable all the Symbols
+            scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
+        }
+
         mPreview
                 = new CameraPreview(ScanActivity.this, mCamera, previewCb, autoFocusCB);
 
@@ -287,8 +292,8 @@ public class ScanActivity extends AppCompatActivity {
 
     private Runnable doAutoFocus = new Runnable() {
         public void run() {
-            Camera.Parameters params = mCamera.getParameters();
             if (previewing) {
+                Camera.Parameters params = mCamera.getParameters();
                 mCamera.autoFocus(autoFocusCB);
 
                 //prevent AutoBalance stops after AutoFocus called
