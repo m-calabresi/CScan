@@ -5,7 +5,7 @@ Cscan, my personal qr-code & barcode scanner app.
 # Updates
 See [changelog](https://github.com/calaaa/CScan/blob/master/changelog.md) for full features-update list.
 
-**Last update:** SAT, 04-01-2017.
+**Last update:** THU, 08-29-2017.
 
 # Credits
 1. The ZBar Android SDK: http://sourceforge.net/projects/zbar/files/AndroidSDK/

@@ -16,9 +16,9 @@ class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
     RecyclerViewHolder(ViewGroup parent) {
         super(LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_item_layout, parent, false));
-        titleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
-        dateTextView = (TextView) itemView.findViewById(R.id.date_text_view);
-        editBtn = (Button) itemView.findViewById(R.id.edit_btn);
+        titleTextView = itemView.findViewById(R.id.title_text_view);
+        dateTextView = itemView.findViewById(R.id.date_text_view);
+        editBtn = itemView.findViewById(R.id.edit_btn);
     }
 
 }

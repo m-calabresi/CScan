@@ -1,6 +1,9 @@
 # Updates changelog
 
-SUN, 05-14-2017
+THU, 08-29-2017
+1. Updated to Android 8.0.0 (Oreo)
+2. Fixes unexpected behavior while opening links from scanned elements
+___
 1. Fresh rebuild of entire project.
 2. New camera interface.
 3. Added camera flash light (if supported).

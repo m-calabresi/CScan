@@ -41,7 +41,7 @@ public class EditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -84,10 +84,10 @@ public class EditActivity extends AppCompatActivity {
 
         isEditing = false;
         parser = new XMLParser(getApplicationContext());
-        done_fab = (FloatingActionButton) findViewById(R.id.done_fab);
-        undo_fab = (FloatingActionButton) findViewById(R.id.undo_fab);
-        editText = (CustomEditText) findViewById(R.id.edit_text);
-        hintTextView = (TextView) findViewById(R.id.hint_text_view);
+        done_fab = findViewById(R.id.done_fab);
+        undo_fab = findViewById(R.id.undo_fab);
+        editText = findViewById(R.id.edit_text);
+        hintTextView = findViewById(R.id.hint_text_view);
 
         defaultKeyListener = editText.getKeyListener();
 

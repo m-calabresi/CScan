@@ -101,7 +101,7 @@ public class ScanActivity extends AppCompatActivity {
                 getString(R.string.pref_key_open_links), false);
 
         //toggle flash button
-        flashButton = (ImageButton) findViewById(R.id.flash_button);
+        flashButton = findViewById(R.id.flash_button);
         flashButton.setBackgroundResource(R.drawable.ic_flash_off); //default icon
         flashButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,7 +119,7 @@ public class ScanActivity extends AppCompatActivity {
         });
 
         //switch camera
-        ImageButton cameraReverseButton = (ImageButton) findViewById(R.id.camera_reverse_button);
+        ImageButton cameraReverseButton = findViewById(R.id.camera_reverse_button);
         cameraReverseButton.setBackgroundResource(R.drawable.ic_switch_camera);
         cameraReverseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +128,7 @@ public class ScanActivity extends AppCompatActivity {
             }
         });
 
-        cameraLayout = (LinearLayout) findViewById(R.id.camera_layout);
+        cameraLayout = findViewById(R.id.camera_layout);
 
         parser = new XMLParser(getApplicationContext());
         infos = parser.read();
@@ -187,9 +187,9 @@ public class ScanActivity extends AppCompatActivity {
 
         builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
         builder.setShowTitle(true);
-        //back arrow icon
-        builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-                getResources(), R.drawable.ic_arrow_back));
+        //back arrow icon - NOT WORKING
+        /*builder.setCloseButtonIcon(BitmapFactory.decodeResource(
+                getResources(), R.drawable.ic_arrow_back));*/
         builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
 
         mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
@@ -243,7 +243,7 @@ public class ScanActivity extends AppCompatActivity {
         mPreview
                 = new CameraPreview(ScanActivity.this, mCamera, previewCb, autoFocusCB);
 
-        preview = (FrameLayout) findViewById(R.id.cameraPreview);
+        preview = findViewById(R.id.cameraPreview);
         preview.addView(mPreview);
         //add views on top of FrameLayout
         preview.removeView(cameraLayout);

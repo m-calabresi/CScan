@@ -1,12 +1,21 @@
 package com.cscan;
 
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +31,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.cscan.classes.CustomTabsBroadcastReceiver;
 import com.cscan.classes.Info;
+import com.cscan.classes.URIChecker;
 import com.cscan.classes.XMLParser;
 import com.cscan.classes.layout.RecyclerViewAdapter;
 
@@ -38,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3500;
+    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
+
+    private CustomTabsServiceConnection mCustomTabsServiceConnection;
+    private CustomTabsClient mCustomTabsClient;
+    protected CustomTabsSession mCustomTabsSession;
+    private CustomTabsIntent customTabsIntent;
 
     private List<Info> infos;
     private List<Info> pendingInfos;
@@ -55,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        emptyView = (TextView) findViewById(R.id.empty_view);
+        emptyView = findViewById(R.id.empty_view);
 
-        FloatingActionButton scan_fab = (FloatingActionButton) findViewById(R.id.scan_fab);
+        FloatingActionButton scan_fab = findViewById(R.id.scan_fab);
         scan_fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,6 +98,55 @@ public class MainActivity extends AppCompatActivity {
         emptyView.setText(string);
 
         bindRecyclerView();
+        //chrome custom tabs
+        bindCustomTabsService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindCustomTabsService();
+        super.onDestroy();
+    }
+
+    private void bindCustomTabsService() {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        Intent intent = new Intent(this, CustomTabsBroadcastReceiver.class); //copy link action
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
+        builder.setShowTitle(true);
+        //back arrow icon - NOT WORKING
+        /*builder.setCloseButtonIcon(BitmapFactory.decodeResource(
+                getResources(), R.drawable.ic_arrow_back));*/
+        builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
+
+        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
+            @Override
+            public void onCustomTabsServiceConnected(ComponentName componentName,
+                                                     CustomTabsClient customTabsClient) {
+                mCustomTabsClient = customTabsClient;
+                mCustomTabsClient.warmup(0);
+                mCustomTabsSession = mCustomTabsClient.newSession(null);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mCustomTabsClient = null;
+            }
+        };
+
+        if (!CustomTabsClient.bindCustomTabsService(
+                this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection))
+            mCustomTabsServiceConnection = null;
+        customTabsIntent = builder.build();
+    }
+
+    private void unbindCustomTabsService() {
+        if (mCustomTabsServiceConnection == null) return;
+        unbindService(mCustomTabsServiceConnection);
+        mCustomTabsClient = null;
+        mCustomTabsSession = null;
     }
 
     @Override
@@ -110,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         infos = parser.read();
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(infos);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
         mRecyclerView.setHasFixedSize(true);
@@ -233,6 +299,17 @@ public class MainActivity extends AppCompatActivity {
         } else
             textMessage(getString(R.string.generic_error),
                     BaseTransientBottomBar.LENGTH_LONG);
+    }
+
+    public void openLink(Info info){
+        String link = info.getText();
+
+        Uri url;
+        //check for syntax URI error
+        link = URIChecker.toLink(link);
+        //open link
+        url = Uri.parse(link);
+        customTabsIntent.launchUrl(this, url);
     }
 
     private void setNotDismissible(final Snackbar snackbar) {

@@ -39,7 +39,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) v.getContext()).openViewActivity(item);
+                ((MainActivity) v.getContext()).openLink(item);
             }
         });
     }
