@@ -4,7 +4,7 @@ THU, 08-29-2017
 1. Updated to Android 8.0.0 (Oreo).
 2. Fixes unexpected behavior while opening links from scanned elements.
 ___
-SAT, 08-04-2017
+SAT, 04-08-2017
 1. Fresh rebuild of entire project.
 2. New camera interface.
 3. Added camera flash light (if supported).
@@ -12,7 +12,7 @@ SAT, 08-04-2017
 5. Added camera support for autofocus, auto white balance and auto exposure (if supported).
 6. Minor graphical & performance improvements.
 ___
-SAT, 01-04-2017
+SAT, 04-01-2017
 1. Fixed RecyclerView scrolling issue.
 2. Addedd Landscape Activity support.
 3. Minor graphical improvements.
