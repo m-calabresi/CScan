@@ -3,11 +3,14 @@ package com.cscan;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -44,9 +47,11 @@ public class SettingsActivity extends AppCompatActivity {
     public static class MyPreferenceFragment extends PreferenceFragment {
         private boolean scanBarcodes;
         private boolean openLinks;
+        private int browserType;
 
         private CheckBoxPreference prefScanBarcodes;
         private CheckBoxPreference prefOpenLinks;
+        private ListPreference prefBrowserType;
 
         private SharedPreferences sharedPreferences;
 
@@ -60,6 +65,9 @@ public class SettingsActivity extends AppCompatActivity {
 
             scanBarcodes = sharedPreferences.getBoolean(getString(R.string.pref_key_scan_barcode), false);
             openLinks = sharedPreferences.getBoolean(getString(R.string.pref_key_open_links), false);
+            browserType = sharedPreferences.getInt(getString(R.string.pref_key_browser_type), 0);
+
+            prefBrowserType = (ListPreference) findPreference(getString(R.string.pref_key_browser_type));
 
             prefScanBarcodes = (CheckBoxPreference) findPreference(getString(R.string.pref_key_scan_barcode));
             prefScanBarcodes.setChecked(scanBarcodes);
@@ -67,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     scanBarcodes = !scanBarcodes;
+
                     sharedPreferences.edit()
                             .putBoolean(getString(R.string.pref_key_scan_barcode), scanBarcodes)
                             .apply();
@@ -81,6 +90,14 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     openLinks = !openLinks;
+
+                    if(openLinks)
+                        prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
+                                R.drawable.ic_browser_type_blue));
+                    else
+                        prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
+                                R.drawable.ic_browser_type_gray));
+
                     sharedPreferences.edit()
                             .putBoolean(getString(R.string.pref_key_open_links), openLinks)
                             .apply();
@@ -88,6 +105,24 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 }
             });
+
+            prefBrowserType.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    browserType = Integer.parseInt(o.toString());
+                    sharedPreferences.edit()
+                            .putInt(getString(R.string.pref_key_browser_type), browserType)
+                            .apply();
+                    return true;
+                }
+            });
+
+            if(openLinks)
+                prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
+                        R.drawable.ic_browser_type_blue));
+            else
+                prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
+                        R.drawable.ic_browser_type_gray));
         }
     }
 }

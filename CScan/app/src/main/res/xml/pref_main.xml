@@ -21,6 +21,12 @@
             android:summary="@string/pref_summary_open_links"
             android:title="@string/pref_title_open_links"
             android:widgetLayout="@layout/swich_compat_layout" />
+        <ListPreference
+            android:key="@string/pref_key_browser_type"
+            android:title="@string/pref_title_browser_type"
+            android:summary="@string/pref_summary_browser_type"
+            android:entries="@array/list_entries"
+            android:entryValues="@array/list_values"
+            android:dependency="@string/pref_key_open_links"/>
     </PreferenceCategory>
-
 </PreferenceScreen>

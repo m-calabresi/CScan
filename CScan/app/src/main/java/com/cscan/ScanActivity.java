@@ -1,19 +1,10 @@
 package com.cscan;
 
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -24,11 +15,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.cscan.classes.CustomTabsBroadcastReceiver;
-import com.cscan.classes.Info;
-import com.cscan.classes.URIChecker;
-import com.cscan.classes.XMLParser;
 import com.cscan.classes.CameraPreview;
+import com.cscan.classes.Info;
+import com.cscan.classes.XMLParser;
+import com.cscan.classes.layout.Browser;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -40,16 +30,11 @@ import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class ScanActivity extends AppCompatActivity {
-
-    public static final String CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
     public static final String INTENT_EXTRA_TITLE = "scan_result";
 
     private static final int AUTOFOCUS_DELAY = 1000; //delay before adjust autofocus (millis)
 
-    private CustomTabsServiceConnection mCustomTabsServiceConnection;
-    private CustomTabsClient mCustomTabsClient;
-    protected CustomTabsSession mCustomTabsSession;
-    private CustomTabsIntent customTabsIntent;
+    protected Browser browser;
 
     private XMLParser parser;
     private List<Info> infos;
@@ -70,6 +55,7 @@ public class ScanActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private boolean scanBarcodes;
     private boolean openLinks;
+    public int browserType;
 
     private boolean previewing = true;
     private boolean flashOn = false;
@@ -99,6 +85,7 @@ public class ScanActivity extends AppCompatActivity {
                 getString(R.string.pref_key_scan_barcode), false);
         openLinks = sharedPreferences.getBoolean(
                 getString(R.string.pref_key_open_links), false);
+        browserType = sharedPreferences.getInt(getString(R.string.pref_key_browser_type), 0);
 
         //toggle flash button
         flashButton = findViewById(R.id.flash_button);
@@ -134,7 +121,8 @@ public class ScanActivity extends AppCompatActivity {
         infos = parser.read();
 
         //chrome custom tabs
-        bindCustomTabsService();
+        browser = new Browser(this);
+        browser.bindCustomTabsService();
     }
 
     @Override
@@ -157,7 +145,7 @@ public class ScanActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        unbindCustomTabsService();
+        browser.unbindCustomTabsService();
         super.onDestroy();
     }
 
@@ -179,47 +167,6 @@ public class ScanActivity extends AppCompatActivity {
         return false;
     }
 
-    private void bindCustomTabsService() {
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        Intent intent = new Intent(this, CustomTabsBroadcastReceiver.class); //copy link action
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        builder.setToolbarColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimary, null));
-        builder.setShowTitle(true);
-        //back arrow icon - NOT WORKING
-        /*builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-                getResources(), R.drawable.ic_arrow_back));*/
-        builder.addMenuItem(getString(R.string.action_copy_link), pendingIntent);
-
-        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName componentName,
-                                                     CustomTabsClient customTabsClient) {
-                mCustomTabsClient = customTabsClient;
-                mCustomTabsClient.warmup(0);
-                mCustomTabsSession = mCustomTabsClient.newSession(null);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mCustomTabsClient = null;
-            }
-        };
-
-        if (!CustomTabsClient.bindCustomTabsService(
-                this, CUSTOM_TAB_PACKAGE_NAME, mCustomTabsServiceConnection))
-            mCustomTabsServiceConnection = null;
-        customTabsIntent = builder.build();
-    }
-
-    private void unbindCustomTabsService() {
-        if (mCustomTabsServiceConnection == null) return;
-        unbindService(mCustomTabsServiceConnection);
-        mCustomTabsClient = null;
-        mCustomTabsSession = null;
-    }
-
     private void openCamera(int cameraType) {
         autoFocusHandler = new Handler();
 
@@ -235,7 +182,7 @@ public class ScanActivity extends AppCompatActivity {
         scanner.setConfig(0, Config.Y_DENSITY, 3);
 
         //qr-code only
-        if(!scanBarcodes){
+        if (!scanBarcodes) {
             scanner.setConfig(0, Config.ENABLE, 0); //Disable all the Symbols
             scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
         }
@@ -333,10 +280,13 @@ public class ScanActivity extends AppCompatActivity {
 
                 //check for duplicate item
                 if ((foundPos = (parser.find(info))) == -1) {
-                    //check for URI
-                    if (URIChecker.isURI(scanResult) && openLinks)
-                        openLink(scanResult);
-                    else { //not a URI
+                    if (openLinks) {
+                        //check for URI
+                        if (browser.isURI(scanResult)) {
+                            browser.openLink(info, browserType);
+                            finish();
+                        }
+                    } else { //not a URI or !openLinks
                         setNextError(null); //no errors to report
                         openViewActivity(info);
                     }
@@ -396,16 +346,6 @@ public class ScanActivity extends AppCompatActivity {
         return !(supportedFlashModes == null || supportedFlashModes.isEmpty()
                 || supportedFlashModes.size() == 1
                 && supportedFlashModes.get(0).equals(Camera.Parameters.FLASH_MODE_OFF));
-    }
-
-    public void openLink(String link) {
-        Uri url;
-        //check for syntax URI error
-        link = URIChecker.toLink(link);
-        //open link
-        url = Uri.parse(link);
-        customTabsIntent.launchUrl(this, url);
-        finish();
     }
 
     public void openViewActivity(Info info) {

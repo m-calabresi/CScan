@@ -1,5 +1,10 @@
 # Updates changelog
 
+WED, 08-30-2017
+1. Fixed unexpected behavior in settings activity.
+2. User now can decide in which browser links open.
+3. Code cleanup.
+__
 THU, 08-29-2017
 1. Updated to Android 8.0.0 (Oreo).
 2. Fixes unexpected behavior while opening links from scanned elements.

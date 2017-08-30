@@ -1,16 +1,22 @@
 package com.cscan.classes.layout;
 
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cscan.MainActivity;
+import com.cscan.R;
 import com.cscan.classes.Info;
 
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class RecyclerViewAdapter extends RecyclerView.Adapter {
     private List<Info> infos;
+    private int browserType;
 
     public RecyclerViewAdapter(List<Info> infos) {
         this.infos = infos;
@@ -39,7 +45,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) v.getContext()).openLink(item);
+                SharedPreferences sharedPreferences = v.getContext().getSharedPreferences(
+                        v.getContext().getString(
+                                R.string.cscan_shared_preference_name), MODE_PRIVATE);
+                browserType = sharedPreferences.getInt(v.getContext().
+                        getString(R.string.pref_key_browser_type), 0);
+                ((MainActivity) v.getContext()).browser.openLink(item, browserType);
             }
         });
     }

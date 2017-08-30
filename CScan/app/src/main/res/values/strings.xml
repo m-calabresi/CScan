@@ -15,15 +15,21 @@
     <string name="pref_key_scan_barcode">scan_barcode</string>
     <string name="pref_key_open_links">open_links</string>
     <string name="pref_key_next_error">next_activity_error</string>
+    <string name="pref_key_browser_type">browser_type</string>
 
     <string name="pref_title_links_category">Links</string>
     <string name="pref_title_scan_category">Scan</string>
     <string name="pref_title_scan_barcodes">Scan barcodes</string>
     <string name="pref_title_open_links">Open links</string>
+    <string name="pref_title_browser_type">Choose browser</string>
     <string name="pref_no_next_error">no_next_error</string>
 
     <string name="pref_summary_scan_barcodes">Allow barcode scanning</string>
-    <string name="pref_summary_open_links">Directly open links into the default in-app web browser</string>
+    <string name="pref_summary_open_links">Open links when scanned</string>
+    <string name="pref_summary_browser_type">Choose browser to open links</string>
+
+    <string name="list_item_in_app_browser">In app (Recommended)</string>
+    <string name="list_item_default_browser">Default</string>
 
 
     <string name="hint_copy_link">Hold text to copy</string>
