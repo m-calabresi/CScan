@@ -85,7 +85,7 @@ public class EditActivity extends AppCompatActivity {
         isEditing = false;
         parser = new XMLParser(getApplicationContext());
         done_fab = findViewById(R.id.done_fab);
-        undo_fab = findViewById(R.id.undo_fab);
+        undo_fab =findViewById(R.id.undo_fab);
         editText = findViewById(R.id.edit_text);
         hintTextView = findViewById(R.id.hint_text_view);
 
@@ -232,7 +232,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void simpleMessage(String message, int time) {
-        final Snackbar snackbar = Snackbar.make(findViewById(R.id.view_activity), message, time);
+        final Snackbar snackbar = Snackbar.make(findViewById(R.id.edit_activity), message, time);
         //makes snackbar not dismissible in CoordinatorLayout
         snackbar.getView().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override

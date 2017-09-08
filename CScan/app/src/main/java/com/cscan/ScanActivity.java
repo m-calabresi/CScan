@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -265,6 +266,7 @@ public class ScanActivity extends AppCompatActivity {
             barcode.setData(data);
 
             int result = scanner.scanImage(barcode);
+            Log.e("MIOLOG 1", Integer.toString(result));
 
             if (result != 0) {
                 previewing = false;
@@ -274,28 +276,33 @@ public class ScanActivity extends AppCompatActivity {
                 SymbolSet syms = scanner.getResults();
                 Symbol sym = syms.iterator().next();
                 String scanResult = sym.getData();
+                Log.e("MIOLOG 2", scanResult);
 
                 int foundPos;
                 Info info = new Info(scanResult);
 
                 //check for duplicate item
                 if ((foundPos = (parser.find(info))) == -1) {
-                    if (openLinks) {
-                        //check for URI
-                        if (browser.isURI(scanResult)) {
-                            browser.openLink(info, browserType);
-                            finish();
-                        }
+                    Log.e("MIOLOG 3", "no duplicate");
+                    //check for URI
+                    if (openLinks && browser.isURI(scanResult)) {
+                        Log.e("MIOLOG 5", "is link, opened");
+                        browser.openLink(info, browserType);
+                        finish();
                     } else { //not a URI or !openLinks
-                        setNextError(null); //no errors to report
+                        Log.e("MIOLOG 6", "no link,viewed");
+                        setNextError(getString(R.string.pref_no_next_error)); //no errors to report
                         openViewActivity(info);
                     }
 
                     //save scanned element
-                    if (!parser.write(info))
-                        setNextError(getString(R.string.pref_key_next_error));
+                    if (!parser.write(info)) {
+                        Log.e("MIOLOG 7", "saving error");
+                        setNextError(getString(R.string.file_write_error));
+                    }
                     infos.add(info);
                 } else {
+                    Log.e("MIOLOG 3", "is duplicate");
                     //open already saved element
                     setNextError(getString(R.string.file_duplicate_error));
                     openViewActivity(infos.get(foundPos));

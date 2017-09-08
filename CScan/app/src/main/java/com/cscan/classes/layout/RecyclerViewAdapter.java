@@ -50,7 +50,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
                                 R.string.cscan_shared_preference_name), MODE_PRIVATE);
                 browserType = sharedPreferences.getInt(v.getContext().
                         getString(R.string.pref_key_browser_type), 0);
-                ((MainActivity) v.getContext()).browser.openLink(item, browserType);
+                if(((MainActivity) v.getContext()).browser.isURI(item.getText())) //if uri
+                    ((MainActivity) v.getContext()).browser.openLink(item, browserType);
+                else //not a uri
+                    ((MainActivity) v.getContext()).openViewActivity(item);
             }
         });
     }
