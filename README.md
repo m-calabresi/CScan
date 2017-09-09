@@ -12,7 +12,7 @@ See [changelog](https://github.com/calaaa/CScan/blob/master/changelog.md) for fu
 
 **Last update:** WED, 09-8-2017.
 
-**Tested and developed on:** Android 4.4.4 KitKat
+**Tested and developed on:** Android 4.4.4 KitKat *(may not work properly on other Androis versions).*
 
 # Credits
 1. The ZBar Android SDK: http://sourceforge.net/projects/zbar/files/AndroidSDK/
