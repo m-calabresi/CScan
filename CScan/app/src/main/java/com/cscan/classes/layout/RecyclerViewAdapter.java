@@ -2,12 +2,12 @@ package com.cscan.classes.layout;
 
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cscan.MainActivity;
 import com.cscan.R;
+import com.cscan.classes.ClipboardManager;
 import com.cscan.classes.Info;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        RecyclerViewHolder viewHolder = (RecyclerViewHolder) holder;
+        final RecyclerViewHolder viewHolder = (RecyclerViewHolder) holder;
         final Info item = infos.get(position);
 
         viewHolder.titleTextView.setText(item.getText());
@@ -54,6 +54,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter {
                     ((MainActivity) v.getContext()).browser.openLink(item, browserType);
                 else //not a uri
                     ((MainActivity) v.getContext()).openViewActivity(item);
+            }
+        });
+
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ClipboardManager.copyToClipboard(item.getText(), view.getContext());
+                viewHolder.itemView.setPressed(false);
+                return true; //no onclick
             }
         });
     }

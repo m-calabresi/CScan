@@ -26,7 +26,7 @@ public class Browser {
 
     private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
     private static final String HTTP_HEADER = "http://";
-    private static final String HTTPS_HEADER = "http://";
+    private static final String HTTPS_HEADER = "https://";
     private static final String FTP_HEADER = "ftp://";
 
     private CustomTabsServiceConnection mCustomTabsServiceConnection;

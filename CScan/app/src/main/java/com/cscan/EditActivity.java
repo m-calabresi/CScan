@@ -220,14 +220,18 @@ public class EditActivity extends AppCompatActivity {
     private void hideKeyboard() {
         if (editText != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+            }
         }
     }
 
     private void showKeyboard() {
         if (editText.requestFocus()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
+            if (imm != null) {
+                imm.showSoftInput(editText, InputMethodManager.SHOW_FORCED);
+            }
         }
     }
 

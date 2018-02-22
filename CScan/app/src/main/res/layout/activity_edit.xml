@@ -49,6 +49,7 @@
         android:layout_marginStart="@dimen/edidtext_horizontal_margin"
         android:layout_marginTop="@dimen/edidtext_vertical_margin"
         android:clickable="true"
+        android:focusable="true"
         card_view:cardCornerRadius="@dimen/cardview_default_radius"
         card_view:cardElevation="@dimen/cardview_default_elevation">
 

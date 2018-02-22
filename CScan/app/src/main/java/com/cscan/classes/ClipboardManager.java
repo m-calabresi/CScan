@@ -12,6 +12,8 @@ public class ClipboardManager {
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
                 context.getSystemService(CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(TEXT_LABEL, text);
-        clipboard.setPrimaryClip(clip);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+        }
     }
 }

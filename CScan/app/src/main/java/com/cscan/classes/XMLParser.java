@@ -229,7 +229,7 @@ public class XMLParser {
         return false;
     }
 
-    private boolean toDocument() {
+    private void toDocument() {
         try {
             File xmlFile = new File(filePath + FILE_NAME);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -238,11 +238,13 @@ public class XMLParser {
             this.document = dBuilder.parse(xmlFile);
             this.document.getDocumentElement().normalize();
 
-            return true;
+            //return true
         } catch (Exception e) {
             e.printStackTrace();
             //if document does not exists / is empty
-            return newDocument();
+
+            //return newDocument()
+            newDocument();
         }
     }
 
