@@ -1,6 +1,5 @@
 # Updates changelog
 
-__
 WED, 09-08-2017
 1. Fixed unexpected behavior in scan activity
 2. Changed design structure in view activity
