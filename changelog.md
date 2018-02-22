@@ -1,9 +1,10 @@
 # Updates changelog
 
+__
 WED, 09-08-2017
-1.Fixed unexpected behavior in scan activity
-2.Changed design structure in view activity
-3.ISSUE: with support-library-v7:26.0.1 snackbar on Android 4.4.4 KitKat have strange behavior showing when view is changed.
+1. Fixed unexpected behavior in scan activity
+2. Changed design structure in view activity
+3. ISSUE: with support-library-v7:26.0.1 snackbar on Android 4.4.4 KitKat have strange behavior showing when view is changed.
 __
 WED, 08-30-2017
 1. Fixed unexpected behavior in settings activity.
