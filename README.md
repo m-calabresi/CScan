@@ -10,7 +10,7 @@ Download apk [here](https://github.com/calaaa/CScan/raw/master/CScan/app/apk/csc
 # Updates
 See [changelog](https://github.com/calaaa/CScan/blob/master/changelog.md) for full features-update list.
 
-**Last update:** WED, 09-8-2017.
+**Last update:** THU, 02-22-2018.
 
 **Tested and developed on:** Android 4.4.4 KitKat *(may not work properly on other Android versions).*
 
