@@ -1,15 +1,21 @@
 # Updates changelog
 
+THU, 02-22-2018
+1. Updated to Android 8.1.0 (Oreo).
+2. Fixed an issue where unable to open "https" URLs.
+3. Added "hold to copy" feature in main activity items.
+4. FIXED: snackbar strange behavior is solved by updating support-library-v7 to version 26.1.0.
+___
 WED, 09-08-2017
-1. Fixed unexpected behavior in scan activity
-2. Changed design structure in view activity
+1. Fixed unexpected behavior in scan activity.
+2. Changed design structure in view activity.
 3. ISSUE: with support-library-v7:26.0.1 snackbar on Android 4.4.4 KitKat have strange behavior showing when view is changed.
-__
+___
 WED, 08-30-2017
 1. Fixed unexpected behavior in settings activity.
 2. User now can decide in which browser links open.
 3. Code cleanup.
-__
+___
 THU, 08-29-2017
 1. Updated to Android 8.0.0 (Oreo).
 2. Fixes unexpected behavior while opening links from scanned elements.
