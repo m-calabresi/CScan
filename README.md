@@ -3,9 +3,9 @@
 Cscan, my personal qr-code & barcode scanner app.
 
 # Downloads
-Download apk [here](https://github.com/calaaa/CScan/raw/master/CScan/app/apk/cscan_release.apk).
+Download apk [here](https://github.com/calaaa/CScan/blob/master/CScan/app/apk/release/cscan_release.apk?raw=true).
 
-**SHA-256:** 0bfc99c858f3bac9df23cd4c963c7b38d5e309e5a3fe481babda9baf01990e31
+**SHA-256:** cc14573765d9cb7dc9f165ca8ee8a5a0536deae88e5e0fa02b9215182e9e0bc1
 
 # Updates
 See [changelog](https://github.com/calaaa/CScan/blob/master/changelog.md) for full features-update list.
