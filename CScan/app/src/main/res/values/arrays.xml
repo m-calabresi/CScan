@@ -1,7 +1,7 @@
 <resources>
     <string-array name="list_entries">
         <item>@string/list_item_in_app_browser</item>
-        <item>@string/list_item_default_browser</item>
+        <item>@string/list_item_external_browser</item>
     </string-array>
     <string-array name="list_values">
         <item>0</item>

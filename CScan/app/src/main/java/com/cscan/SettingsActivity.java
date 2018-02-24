@@ -108,7 +108,14 @@ public class SettingsActivity extends AppCompatActivity {
             prefBrowserType.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    browserType = Integer.parseInt(o.toString());
+                    browserType = Integer.parseInt(o.toString()); //0=in app 1=external
+
+                    //display message
+                    if(browserType == 0)
+                        prefBrowserType.setSummary(getString(R.string.list_item_in_app_browser));
+                    else
+                        prefBrowserType.setSummary(getString(R.string.list_item_external_browser));
+
                     sharedPreferences.edit()
                             .putInt(getString(R.string.pref_key_browser_type), browserType)
                             .apply();
@@ -116,12 +123,19 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            //icon
             if(openLinks)
                 prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
                         R.drawable.ic_browser_type_blue));
             else
                 prefBrowserType.setIcon(ContextCompat.getDrawable(getActivity(),
                         R.drawable.ic_browser_type_gray));
+            //display message
+            if(browserType == 0)
+                prefBrowserType.setSummary(getString(R.string.list_item_in_app_browser));
+            else
+                prefBrowserType.setSummary(getString(R.string.list_item_external_browser));
+
         }
     }
 }

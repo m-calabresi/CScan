@@ -26,11 +26,9 @@
 
     <string name="pref_summary_scan_barcodes">Allow barcode scanning</string>
     <string name="pref_summary_open_links">Open links when scanned</string>
-    <string name="pref_summary_browser_type">Choose browser to open links</string>
 
-    <string name="list_item_in_app_browser">In app (Recommended)</string>
-    <string name="list_item_default_browser">Default</string>
-
+    <string name="list_item_in_app_browser">In app (Default)</string>
+    <string name="list_item_external_browser">External</string>
 
     <string name="hint_copy_link">Hold text to copy</string>
 
