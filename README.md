@@ -1,6 +1,6 @@
 # CScan
 
-Cscan, my personal qr-code & barcode scanner app.
+CScan, my personal qr-code & barcode scanner app.
 
 # Downloads
 Download apk [here](https://github.com/calaaa/CScan/blob/master/CScan/app/apk/release/cscan_release.apk?raw=true).
